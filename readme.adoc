@@ -111,3 +111,18 @@ Library to build HTML web views using natural templating.
 
 - https://spring.io/guides/gs/serving-web-content[Getting started guide]
 - https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html[Tutorial]
+Aufgabenbearbeitung
+
+### Aufgabe 6: Registrierung
+
+Bearbeiter: Sameer Verma
+
+Beschreibung:
+
+Registrierung neuer Benutzer mit Benutzername und Passwort.
+
+Zweimalige Eingabe des Passworts mit serverseitiger Prüfung auf Gleichheit.
+
+Validierung der Passwortlänge (mindestens 8 Zeichen), mindestens einem Großbuchstaben und einer Zahl.
+
+Prüfung, ob der Benutzername bereits vergeben ist, mit entsprechender Fehlermeldung.
