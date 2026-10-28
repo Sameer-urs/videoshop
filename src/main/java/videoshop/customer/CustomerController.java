@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2013-2017 the original author or authors.
  *
@@ -28,45 +29,60 @@ import org.springframework.web.bind.annotation.PostMapping;
 @Controller
 class CustomerController {
 
-	private final CustomerManagement customerManagement;
+    private final CustomerManagement customerManagement;
 
-	CustomerController(CustomerManagement customerManagement) {
+    CustomerController(CustomerManagement customerManagement) {
 
-		Assert.notNull(customerManagement, "CustomerManagement must not be null!");
+        Assert.notNull(customerManagement, "CustomerManagement must not be null!");
 
-		this.customerManagement = customerManagement;
-	}
+        this.customerManagement = customerManagement;
+    }
 
-	// (｡◕‿◕｡)
-	// Über @Valid können wir die Eingaben automagisch prüfen lassen, ob es Fehler gab steht im BindingResult,
-	// dies muss direkt nach dem @Valid Parameter folgen.
-	// Siehe außerdem videoshop.model.validation.RegistrationForm
-	// Lektüre: http://docs.spring.io/spring/docs/current/spring-framework-reference/html/validation.html
-	@PostMapping("/register")
-	String registerNew(@Valid RegistrationForm form, Errors result) {
+    // (｡◕‿◕｡)
+    // Über @Valid können wir die Eingaben automagisch prüfen lassen.
+    // Ob es Fehler gab, steht im BindingResult (hier: Errors).
+    // Dieser muss direkt nach dem @Valid-Parameter folgen.
+    // Siehe außerdem videoshop.customer.RegistrationForm
+    // Lektüre: http://docs.spring.io/spring/docs/current/spring-framework-reference/html/validation.html
+    @PostMapping("/register")
+    String registerNew(@Valid RegistrationForm form, Errors result) {
 
-		if (result.hasErrors()) {
-			return "register";
-		}
+        // Zusätzliche Prüfung: Stimmen beide Passworteingaben überein?
+        form.validate(result);
 
-		// (｡◕‿◕｡)
-		// Falles alles in Ordnung ist legen wir einen Customer an
-		customerManagement.createCustomer(form);
+        if (result.hasErrors()) {
+            return "register";
+        }
 
-		return "redirect:/";
-	}
+        // (｡◕‿◕｡)
+        // Falls alles in Ordnung ist, legen wir einen Customer an.
+        try {
+            customerManagement.createCustomer(form);
+        } catch (IllegalArgumentException e) {
+            // Benutzername existiert bereits.
+            result.rejectValue(
+                "name",
+                "registration.username.exists",
+                "This username is already taken."
+            );
 
-	@GetMapping("/register")
-	String register(Model model, RegistrationForm form) {
-		return "register";
-	}
+            return "register";
+        }
 
-	@GetMapping("/customers")
-	@PreAuthorize("hasRole('BOSS')")
-	String customers(Model model) {
+        return "redirect:/";
+    }
 
-		model.addAttribute("customerList", customerManagement.findAll());
+    @GetMapping("/register")
+    String register(Model model, RegistrationForm form) {
+        return "register";
+    }
 
-		return "customers";
-	}
+    @GetMapping("/customers")
+    @PreAuthorize("hasRole('BOSS')")
+    String customers(Model model) {
+
+        model.addAttribute("customerList", customerManagement.findAll());
+
+        return "customers";
+    }
 }
